@@ -1,6 +1,6 @@
 {
 	"name": "inject-body",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Inject contents into the HTML <body> tag of an HTTP response",
 	"repository": "shinnn/inject-body",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
