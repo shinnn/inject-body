@@ -7,7 +7,7 @@
 Inject contents into the HTML `<body>` tag of an HTTP response
 
 ```javascript
-const {createServer} = require('html');
+const {createServer} = require('http');
 const fetch = require('node-fetch');
 const injectBody = require('inject-body');
 
@@ -43,7 +43,7 @@ const injectBody = require('inject-body');
 If the media type of the response is `text/html`, it inserts a given contents into the response body as the first child of `<body>` tag, with increasing the value of `Content-Length` header if necessary.
 
 ```javascript
-const {createServer} = require('html');
+const {createServer} = require('http');
 const fetch = require('node-fetch');
 const injectBody = require('inject-body');
 

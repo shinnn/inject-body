@@ -173,7 +173,7 @@ test('Argument validation', t => {
 
 	t.throws(
 		() => injectBody(new ServerResponse({method: 'get'}), new Uint32Array()),
-		/^TypeError.*Expected a code to inject to HTML <body>s \(<Buffer>\), but got Uint32Array \[ {2}\]\./u,
+		/^TypeError.*Expected a code to inject to HTML <body>s \(<Buffer>\), but got Uint32Array \[\]\./u,
 		'should fail when the second argument is neither a string nor Buffer.'
 	);
 

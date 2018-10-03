@@ -7,7 +7,7 @@
 	"license": "ISC",
 	"scripts": {
 		"pretest": "eslint .",
-		"test": "nyc --reporter=html --reporter=text node test.js"
+		"test": "nyc node test.js"
 	},
 	"files": [
 		"index.js"
@@ -29,17 +29,21 @@
 	"dependencies": {
 		"content-type": "^1.0.4",
 		"htmlparser2": "^3.9.2",
-		"inspect-with-kind": "^1.0.4"
+		"inspect-with-kind": "^1.0.5"
 	},
 	"devDependencies": {
-		"@shinnn/eslint-config-node": "^6.0.0",
-		"eslint": "^5.3.0",
+		"@shinnn/eslint-config": "^6.7.1",
+		"eslint": "^5.6.1",
 		"lodash": "^4.17.10",
 		"node-fetch": "^2.2.0",
-		"nyc": "^12.0.2",
+		"nyc": "^13.0.1",
+		"nyc-config-common": "^1.0.0",
 		"tape": "^4.9.1"
 	},
 	"eslintConfig": {
-		"extends": "@shinnn/node"
+		"extends": "@shinnn"
+	},
+	"nyc": {
+		"extends": "nyc-config-common"
 	}
 }
