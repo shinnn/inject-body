@@ -12,7 +12,7 @@ const test = require('tape');
 test('injectBody()', async t => {
 	const server = createServer((req, res) => {
 		if (req.url.endsWith('html/')) {
-			const html = Buffer.from('<html><head></head><body></body></html>');
+			const html = Buffer.from('<html ⚡><head></head><body></body></html>');
 
 			injectBody(res, Buffer.from('a🐠蓺'));
 
@@ -88,7 +88,7 @@ test('injectBody()', async t => {
 		(async () => {
 			t.equal(
 				await (await fetch('http://localhost:3018/html/')).text(),
-				'<html><head></head><body>a🐠蓺</body></html>',
+				'<html ⚡><head></head><body>a🐠蓺</body></html>',
 				'should inject contents to the <body> tags.'
 			);
 		})(),

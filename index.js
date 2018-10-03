@@ -51,15 +51,14 @@ function main(res, injectChunk, etag) {
 			}
 
 			const insertionIndex = parser.endIndex + 1;
-			const buffer = Buffer.concat(buffers, len);
+			const html = Buffer.concat(buffers, len).toString();
 
 			buffers.splice(
 				0,
 				buffers.length,
-				buffer.slice(0, insertionIndex),
-				injectChunk,
-				buffer.slice(insertionIndex, len)
+				Buffer.from(`${html.slice(0, insertionIndex)}${injectChunk.toString()}${html.slice(insertionIndex)}`)
 			);
+
 			len += injectChunk.length;
 
 			parser.end();
