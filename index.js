@@ -50,15 +50,23 @@ function main(res, injectChunk, etag) {
 				return;
 			}
 
-			const insertionIndex = parser.endIndex + 1;
-			const html = Buffer.concat(buffers, len).toString();
+			const buffer = Buffer.concat(buffers, len);
+			let insertionIndex = parser.endIndex + 1;
+
+			// handle the case when parser._tokenizer._buffer doesn't exist
+			// because it's an internal, undocumented API
+			// https://github.com/fb55/htmlparser2/blob/v3.9.2/lib/Parser.js#L118
+			try {
+				insertionIndex = Buffer.byteLength(parser._tokenizer._buffer.slice(0, insertionIndex)); // eslint-disable-line no-underscore-dangle
+			} catch (err) {}
 
 			buffers.splice(
 				0,
 				buffers.length,
-				Buffer.from(`${html.slice(0, insertionIndex)}${injectChunk.toString()}${html.slice(insertionIndex)}`)
+				buffer.slice(0, insertionIndex),
+				injectChunk,
+				buffer.slice(insertionIndex, len)
 			);
-
 			len += injectChunk.length;
 
 			parser.end();
