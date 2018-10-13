@@ -43,7 +43,9 @@ test('injectBody()', async t => {
 		if (req.url.endsWith('no-content-length/')) {
 			res.setHeader('Content-typE', 'text/html');
 			injectBody(res, Buffer.from('\t\n☺️'));
-			res.write('<');
+			res.write(Buffer.concat([Buffer.from('<HEAD><TITLE>'), Buffer.from([0xC2])], 14));
+			res.write(Buffer.alloc(0));
+			res.write(Buffer.concat([Buffer.from([0xA2]), Buffer.from('</TITLE></HEAD><')], 17));
 			res.write('BODY>', () => res.write('</BODY>', () => res.end(noop)));
 			return;
 		}
@@ -112,7 +114,7 @@ test('injectBody()', async t => {
 
 			t.equal(
 				await response.text(),
-				'<BODY>\t\n☺️</BODY>',
+				'<HEAD><TITLE>¢</TITLE></HEAD><BODY>\t\n☺️</BODY>',
 				'should support response without Content-Length header.'
 			);
 

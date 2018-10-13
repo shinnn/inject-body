@@ -2,6 +2,7 @@
 
 const {createHash} = require('crypto');
 const {inspect} = require('util');
+const {StringDecoder} = require('string_decoder');
 
 const inspectWithKind = require('inspect-with-kind');
 const {parse} = require('content-type');
@@ -31,7 +32,9 @@ function main(res, injectChunk, etag) {
 	const write = res.write.bind(res);
 	const end = res.end.bind(res);
 	const setHeader = res.setHeader.bind(res);
+	const utf8Decoder = new StringDecoder('utf8');
 	const buffers = [];
+	let htmlUntilOpenBodyTagFound = '';
 	let willEnd = false;
 	let len = 0;
 	let isHtml = false;
@@ -50,24 +53,17 @@ function main(res, injectChunk, etag) {
 				return;
 			}
 
-			const buffer = Buffer.concat(buffers, len);
-			let insertionIndex = parser.endIndex + 1;
-
-			// handle the case when parser._tokenizer._buffer doesn't exist
-			// because it's an internal, undocumented API
-			// https://github.com/fb55/htmlparser2/blob/v3.9.2/lib/Parser.js#L118
-			try {
-				insertionIndex = Buffer.byteLength(parser._tokenizer._buffer.slice(0, insertionIndex)); // eslint-disable-line no-underscore-dangle
-			} catch (err) {}
+			const insertionIndex = parser.endIndex + 1;
 
 			buffers.splice(
 				0,
 				buffers.length,
-				buffer.slice(0, insertionIndex),
+				Buffer.from(htmlUntilOpenBodyTagFound.slice(0, insertionIndex)),
 				injectChunk,
-				buffer.slice(insertionIndex, len)
+				Buffer.from(htmlUntilOpenBodyTagFound.slice(insertionIndex, len))
 			);
 			len += injectChunk.length;
+			htmlUntilOpenBodyTagFound = '';
 
 			parser.end();
 		},
@@ -152,13 +148,24 @@ function main(res, injectChunk, etag) {
 		}
 
 		if (parser) {
-			len += data.length;
-			buffers.push(data);
+			let encodedChunk;
+
+			if (data.length !== 0) {
+				len += data.length;
+				buffers.push(data);
+				encodedChunk = utf8Decoder.write(data);
+			}
 
 			if (willEnd) {
-				parser.parseComplete(data);
+				if (encodedChunk) {
+					htmlUntilOpenBodyTagFound += encodedChunk;
+					parser.parseComplete(`${encodedChunk}${utf8Decoder.end()}`);
+				}
 			} else {
-				parser.write(data);
+				if (encodedChunk) {
+					htmlUntilOpenBodyTagFound += encodedChunk;
+					parser.write(encodedChunk);
+				}
 
 				if (typeof restArgs[restArgs.length - 1] === 'function') {
 					restArgs[restArgs.length - 1]();
